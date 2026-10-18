@@ -10,7 +10,7 @@
     <packaging>pom</packaging>
     <modules>
         <module>control-gasto-ingreso-core</module>
-        <module>contro-gasto-ingreso-ui</module>
+        <module>control-gasto-ingreso-ui</module>
     </modules>
 
     <properties>
