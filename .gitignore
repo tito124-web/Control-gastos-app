@@ -1,14 +1,20 @@
+### Maven ###
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
 .kotlin
 
+### Gradle / Android ###
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+.gradle/
+local.properties
+
 ### IntelliJ IDEA ###
-.idea/modules.xml
-.idea/jarRepositories.xml
-.idea/compiler.xml
-.idea/libraries/
+.idea/
+out/
 *.iws
 *.iml
 *.ipr
@@ -28,10 +34,15 @@ target/
 /dist/
 /nbdist/
 /.nb-gradle/
-build/
-!**/src/main/**/build/
-!**/src/test/**/build/
 
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+
+### Base de datos local ###
+*.db
 ### VS Code ###
 .vscode/
 
