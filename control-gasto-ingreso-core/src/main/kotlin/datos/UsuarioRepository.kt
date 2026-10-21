@@ -6,5 +6,5 @@ interface UsuarioRepository {
 
     suspend fun obtener(): Usuario?
 
-    suspend fun guardar(usuario: Usuario)
+    suspend fun aguardar(usuario: Usuario)
 }
