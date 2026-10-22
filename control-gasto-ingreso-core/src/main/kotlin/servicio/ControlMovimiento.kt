@@ -41,7 +41,7 @@ class ControlMovimiento(private  val repositorio: MovimientoRepository) {
         return null
     }
 
-    suspend fun eliminar(id: Int): Boolean? = repositorio.eliminar(id)
+    suspend fun eliminar(id: Int): Boolean = repositorio.eliminar(id)
 
 
 
@@ -61,8 +61,8 @@ class ControlMovimiento(private  val repositorio: MovimientoRepository) {
     suspend fun balance(): Double = totalPorTipo(Tipo.INGRESO) - totalPorTipo(Tipo.GASTO)
 
 
-    suspend fun verificarLimite(limite: Double): String? {
-        if (limite <= 0.0) return  "El limite debe der ser mayor no ser mayor que 0"
+     fun validarLimite(limite: Double): String? {
+        if (limite <= 0.0) return  "El limite debe  ser mayor  que 0"
         return null
     }
 
@@ -75,12 +75,12 @@ class ControlMovimiento(private  val repositorio: MovimientoRepository) {
         return suma
     }
 
-    suspend fun validarlimite(limite: Double?, mes: String): String? {
+    suspend fun avisoLimite(limite: Double?, mes: String): String? {
         if (limite == null) return null
         val gastado = gastadoEnMes(mes)
        return when {
            gastado > limite -> "Has superado el limite de gastos"
-           gastado >= limite * 0.08  -> "Estas cerca del limite de gastos"
+           gastado >= limite * 0.8  -> "Estas cerca del limite de gastos"
            else -> null
        }
        }
