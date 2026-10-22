@@ -84,21 +84,7 @@ class ControlMovimiento(private  val repositorio: MovimientoRepository) {
            else -> null
        }
        }
-    suspend fun totalPorCategoria(tipo: Tipo): Map<Categoria, Double> {
-        val totales = mutableMapOf<Categoria, Double>()
-        for (m in repositorio.listar()) {
-            if (m.categoria.tipo != tipo) continue
-            val acumulado = totales[m.categoria] ?: 0.0
-            totales[m.categoria] = acumulado + m.monto
-        }
-        return totales
-    }
 
-    suspend fun resumen(): String {
-        val cantidad = repositorio.listar().size
-        val palabra = if (cantidad == 1) "movimiento" else "movimientos"
-        return "$cantidad $palabra · Balance: ${formatearQuetzales(balance())}"
-    }
 
 
 
