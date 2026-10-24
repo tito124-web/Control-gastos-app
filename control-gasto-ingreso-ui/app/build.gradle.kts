@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -7,13 +8,17 @@ android {
     compileSdk {
         version = release(37)
     }
+    buildFeatures {
+        viewBinding = true   // 👈 conecta el XML con Kotlin sin findViewById (ver diapositivas)
+    }
+
 
     defaultConfig {
         applicationId = "umg.edu.gt.progra2"
         minSdk = 24
         targetSdk = 37
         versionCode = 1
-        versionName = "1.0"
+        versionName = "1.0.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -33,6 +38,11 @@ android {
 }
 
 dependencies {
+    implementation("androidx.room:room-runtime:2.8.5")
+    ksp("androidx.room:room-compiler:2.8.5")
+    implementation(libs.androidx.fragment)
+    implementation(libs.control.gasto.ingreso.core)                    // el guion se convierte en punto
+    implementation(libs.androidx.lifecycle.runtime.ktx)// 👈 para lifecycleScope
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
