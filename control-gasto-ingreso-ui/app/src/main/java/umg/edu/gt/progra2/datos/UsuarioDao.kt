@@ -1,15 +1,16 @@
 package umg.edu.gt.progra2.datos
 
+import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import umg.edu.gt.progra2.modelo.Usuario
 
+@Dao
 interface UsuarioDao {
 
-@Insert
-suspend fun insertar(usuario: Usuario): Long
+    @Query("SELECT * FROM usuario WHERE id = 1")
+    suspend fun obtener(): UsuarioEntity?
 
-@Query("SELECT * FROM usuario ")
-suspend fun obtenerusuario(): UsuarioEntity?
-
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun guardar(usuario: UsuarioEntity)
 }
