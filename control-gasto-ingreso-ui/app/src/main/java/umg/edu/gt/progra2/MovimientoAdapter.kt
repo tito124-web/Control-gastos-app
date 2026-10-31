@@ -29,6 +29,7 @@ class MovimientoAdapter(
         val tvDetalleDescripcion: TextView = vista.findViewById(R.id.tvDetalleDescripcion)
         val tvDetalleTipo: TextView = vista.findViewById(R.id.tvDetalleTipo)
         val btnActualizar: Button = vista.findViewById(R.id.btnActualizar)
+        val tvDetalleFecha: TextView = vista.findViewById(R.id.tvDetalleFecha)  //nuevo campo de fecha
     }
 
     override fun onAttachedToRecyclerView(recyclerView: RecyclerView) {
@@ -50,6 +51,8 @@ class MovimientoAdapter(
     override fun onBindViewHolder(f: Fila, posicion: Int) {
         val m = datos[posicion]
         val esIngreso = m.categoria.tipo == Tipo.INGRESO
+
+        f.tvDetalleFecha.text = "Fecha: ${m.fecha}" // nuevo campo de fecha
 
         f.tvDescripcion.text = m.descripcion
         f.tvCategoria.text = m.categoria.toString()
