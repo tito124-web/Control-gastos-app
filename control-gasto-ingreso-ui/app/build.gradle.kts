@@ -40,6 +40,7 @@ android {
 dependencies {
     implementation("androidx.room:room-runtime:2.8.5")
     ksp("androidx.room:room-compiler:2.8.5")
+    implementation("androidx.recyclerview:recyclerview:1.4.0")
     implementation(libs.androidx.fragment)
     implementation(libs.control.gasto.ingreso.core)                    // el guion se convierte en punto
     implementation(libs.androidx.lifecycle.runtime.ktx)// 👈 para lifecycleScope

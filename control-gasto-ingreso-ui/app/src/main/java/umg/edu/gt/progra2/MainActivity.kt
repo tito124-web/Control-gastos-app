@@ -1,6 +1,9 @@
 package umg.edu.gt.progra2
 
 import android.content.Intent
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
 import android.os.Bundle
 import android.text.InputType
 import android.widget.EditText
@@ -8,6 +11,10 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import umg.edu.gt.progra2.databinding.ActivityMainBinding
 import umg.edu.gt.progra2.modelo.Movimiento
@@ -20,6 +27,7 @@ import java.util.Locale
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private lateinit var adapter: MovimientoAdapter
     private val control = Dependencias.control
     private val usuarios = Dependencias.usuarios
     private val prefs by lazy { getSharedPreferences("config", MODE_PRIVATE) }
@@ -29,18 +37,21 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.lvMovimientos.emptyView = binding.tvVacio
+        adapter = MovimientoAdapter(emptyList()) { m -> editar(m) }
+        binding.rvMovimientos.layoutManager = LinearLayoutManager(this)
+        binding.rvMovimientos.adapter = adapter
+        binding.rvMovimientos.itemAnimator = null
+        activarDeslizar()
 
         binding.btnNuevo.setOnClickListener {
             startActivity(Intent(this, FormularioActivity::class.java))
         }
-       // binding.btnEstado.setOnClickListener {
-            //startActivity(Intent(this, EstadoFinancieroActivity::class.java))
-        //}
+        binding.btnEstado.setOnClickListener {
+            startActivity(Intent(this, EstadoFinancieroActivity::class.java))
+        }
         binding.tvLimite.setOnClickListener { pedirLimite() }
     }
 
-    // Se ejecuta cada vez que la pantalla vuelve a verse, por ejemplo al regresar del formulario
     override fun onResume() {
         super.onResume()
         actualizarPantalla()
@@ -54,35 +65,73 @@ class MainActivity : AppCompatActivity() {
             binding.tvBalance.text = formatearQuetzales(control.balance())
 
             val lista = control.listar()
-
-            binding.lvMovimientos.adapter = MovimientoAdapter(this@MainActivity, lista)
-
-            binding.lvMovimientos.setOnItemClickListener { _, _, posicion, _ ->
-                mostrarDetalle(lista[posicion])
-            }
-            binding.lvMovimientos.setOnItemLongClickListener { _, _, posicion, _ ->
-                confirmarEliminar(lista[posicion])
-                true
-            }
+            adapter.actualizarDatos(lista)
+            binding.tvVacio.visibility =
+                if (lista.isEmpty()) android.view.View.VISIBLE else android.view.View.GONE
 
             revisarLimite()
         }
     }
 
-
-    private fun confirmarEliminar(m: Movimiento) {
-        AlertDialog.Builder(this)
-            .setTitle("Eliminar movimiento")
-            .setMessage("¿Eliminar \"${m.descripcion}\"?")
-            .setPositiveButton("Eliminar") { _, _ ->
-                lifecycleScope.launch {
-                    control.eliminar(m.id)
-                    actualizarPantalla()
-                }
-            }
-            .setNegativeButton("Cancelar", null)
-            .show()
+    private fun editar(m: Movimiento) {
+        startActivity(Intent(this, FormularioActivity::class.java).putExtra("id", m.id))
     }
+
+    // Deslizar una fila hacia la izquierda la elimina, con opción de deshacer
+    private fun activarDeslizar() {
+        val densidad = resources.displayMetrics.density
+        val fondo = Paint().apply { color = Color.parseColor("#C4332F") }
+        val texto = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            color = Color.WHITE
+            textSize = 13f * densidad
+            textAlign = Paint.Align.RIGHT
+        }
+
+        val callback = object : ItemTouchHelper.SimpleCallback(0, ItemTouchHelper.LEFT) {
+            override fun onMove(
+                rv: RecyclerView,
+                v: RecyclerView.ViewHolder,
+                t: RecyclerView.ViewHolder
+            ) = false
+
+            override fun onSwiped(holder: RecyclerView.ViewHolder, direction: Int) {
+                val pos = holder.bindingAdapterPosition
+                if (pos == RecyclerView.NO_POSITION) return
+                eliminarConDeshacer(adapter.movimientoEn(pos))
+            }
+
+            override fun onChildDraw(
+                c: Canvas, rv: RecyclerView, holder: RecyclerView.ViewHolder,
+                dX: Float, dY: Float, actionState: Int, isCurrentlyActive: Boolean
+            ) {
+                val v = holder.itemView
+                c.drawRect(v.right + dX, v.top.toFloat(), v.right.toFloat(), v.bottom.toFloat(), fondo)
+                if (dX < 0) {
+                    c.drawText(
+                        "Eliminar", v.right - 16f * densidad,
+                        v.top + v.height / 2f + texto.textSize / 3f, texto
+                    )
+                }
+                super.onChildDraw(c, rv, holder, dX, dY, actionState, isCurrentlyActive)
+            }
+        }
+        ItemTouchHelper(callback).attachToRecyclerView(binding.rvMovimientos)
+    }
+
+    private fun eliminarConDeshacer(m: Movimiento) {
+        lifecycleScope.launch {
+            control.eliminar(m.id)
+            actualizarPantalla()
+            Snackbar.make(binding.root, "Movimiento eliminado", Snackbar.LENGTH_LONG)
+                .setAction("Deshacer") {
+                    lifecycleScope.launch {
+                        control.registrar(m)
+                        actualizarPantalla()
+                    }
+                }.show()
+        }
+    }
+
     private fun leerLimite(): Double? = prefs.getString("limite_diario", null)?.toDoubleOrNull()
 
     private fun guardarLimite(limite: Double?) {
@@ -98,6 +147,7 @@ class MainActivity : AppCompatActivity() {
         val campo = EditText(this).apply {
             inputType = InputType.TYPE_CLASS_NUMBER or InputType.TYPE_NUMBER_FLAG_DECIMAL
             hint = "Ej. 100"
+            setTextColor(Color.parseColor("#37352F"))
             leerLimite()?.let { setText(it.toString()) }
         }
 
@@ -132,22 +182,5 @@ class MainActivity : AppCompatActivity() {
             else "Límite diario: ${formatearQuetzales(limite)} · Cambiar"
 
         binding.tvAviso.text = control.avisoLimite(limite, hoy()) ?: ""
-    }
-
-
-    private fun mostrarDetalle(m: Movimiento) {
-        val tipo = if (m.categoria.tipo == Tipo.INGRESO) "Ingreso" else "Gasto"
-        val detalle = "Descripción: ${m.descripcion}\n" +
-                "Tipo: $tipo\n" +
-                "Categoría: ${m.categoria}\n" +
-                "Monto: ${formatearQuetzales(m.monto)}\n" +
-                "Fecha: ${m.fecha}"
-
-        AlertDialog.Builder(this)
-            .setTitle("Detalle del movimiento")
-            .setMessage(detalle)
-            .setPositiveButton("Cerrar", null)
-            .setNegativeButton("Eliminar") { _, _ -> confirmarEliminar(m) }
-            .show()
     }
 }

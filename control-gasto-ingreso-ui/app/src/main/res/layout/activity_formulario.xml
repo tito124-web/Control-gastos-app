@@ -9,21 +9,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="16dp">
 
         <TextView
+            android:id="@+id/tvTitulo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Nuevo movimiento"
             android:textColor="#37352F"
-            android:textSize="28sp"
+            android:textSize="22sp"
             android:textStyle="bold" />
 
         <RadioGroup
             android:id="@+id/rgTipo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="12dp"
             android:orientation="horizontal">
 
             <RadioButton
@@ -31,45 +32,56 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:buttonTint="#1B6FC2"
                 android:checked="true"
-                android:text="Gasto" />
+                android:text="Gasto"
+                android:textColor="#37352F"
+                android:textSize="14sp" />
 
             <RadioButton
                 android:id="@+id/rbIngreso"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Ingreso" />
+                android:buttonTint="#1B6FC2"
+                android:text="Ingreso"
+                android:textColor="#37352F"
+                android:textSize="14sp" />
         </RadioGroup>
 
         <EditText
             android:id="@+id/etDescripcion"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:hint="Descripción"
             android:inputType="textCapSentences"
-            android:maxLength="50" />
+            android:maxLength="50"
+            android:textColor="#37352F"
+            android:textColorHint="#6B6A66"
+            android:textSize="14sp" />
 
         <EditText
             android:id="@+id/etMonto"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Monto (Q)"
-            android:inputType="numberDecimal" />
+            android:inputType="numberDecimal"
+            android:textColor="#37352F"
+            android:textColorHint="#6B6A66"
+            android:textSize="14sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp"
+            android:layout_marginTop="8dp"
             android:text="Categoría"
             android:textColor="#6B6A66"
-            android:textSize="13sp" />
+            android:textSize="12sp" />
 
         <Spinner
             android:id="@+id/spCategoria"
             android:layout_width="match_parent"
-            android:layout_height="48dp" />
+            android:layout_height="44dp" />
 
         <EditText
             android:id="@+id/etFecha"
@@ -78,23 +90,28 @@
             android:digits="0123456789-"
             android:hint="Fecha (yyyy-MM-dd)"
             android:inputType="number"
-            android:maxLength="10" />
+            android:maxLength="10"
+            android:textColor="#37352F"
+            android:textColorHint="#6B6A66"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/btnGuardar"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_marginTop="16dp"
+            android:layout_height="44dp"
+            android:layout_marginTop="12dp"
             android:backgroundTint="#1B6FC2"
             android:text="Guardar"
-            android:textColor="#FFFFFF" />
+            android:textColor="#FFFFFF"
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/btnCancelar"
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="match_parent"
-            android:layout_height="48dp"
+            android:layout_height="40dp"
             android:text="Cancelar"
-            android:textColor="#1B6FC2" />
+            android:textColor="#1B6FC2"
+            android:textSize="13sp" />
     </LinearLayout>
 </ScrollView>

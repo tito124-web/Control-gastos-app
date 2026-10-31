@@ -18,6 +18,7 @@ class FormularioActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityFormularioBinding
     private val control = Dependencias.control
+    private var editandoId: Int? = null      // null = movimiento nuevo
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,19 +28,44 @@ class FormularioActivity : AppCompatActivity() {
         binding.etFecha.setText(SimpleDateFormat("yyyy-MM-dd", Locale.US).format(Date()))
         mostrarCategorias(Tipo.GASTO)
 
-        // Al cambiar entre Gasto e Ingreso, el Spinner solo muestra las categorías de ese tipo
         binding.rgTipo.setOnCheckedChangeListener { _, id ->
             mostrarCategorias(if (id == R.id.rbIngreso) Tipo.INGRESO else Tipo.GASTO)
         }
-
         binding.btnGuardar.setOnClickListener { guardar() }
         binding.btnCancelar.setOnClickListener { finish() }
+
+        val id = intent.getIntExtra("id", -1)
+        if (id != -1) cargarParaEditar(id)
     }
 
     private fun mostrarCategorias(tipo: Tipo) {
         val categorias = Categoria.entries.filter { it.tipo == tipo }
-        binding.spCategoria.adapter =
-            ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, categorias)
+        val adaptador = ArrayAdapter(this, R.layout.item_spinner, categorias)
+        adaptador.setDropDownViewResource(R.layout.item_spinner)
+        binding.spCategoria.adapter = adaptador
+    }
+
+    private fun cargarParaEditar(id: Int) {
+        lifecycleScope.launch {
+            val m = control.buscar(id)
+            if (m == null) {
+                finish()
+                return@launch
+            }
+            editandoId = id
+            binding.tvTitulo.text = "Editar movimiento"
+            binding.btnGuardar.text = "Guardar cambios"
+
+            val tipo = m.categoria.tipo
+            binding.rgTipo.check(if (tipo == Tipo.INGRESO) R.id.rbIngreso else R.id.rbGasto)
+            mostrarCategorias(tipo)
+            val posicion = Categoria.entries.filter { it.tipo == tipo }.indexOf(m.categoria)
+            binding.spCategoria.setSelection(posicion)
+
+            binding.etDescripcion.setText(m.descripcion)
+            binding.etMonto.setText(m.monto.toString())
+            binding.etFecha.setText(m.fecha)
+        }
     }
 
     private fun guardar() {
@@ -56,13 +82,15 @@ class FormularioActivity : AppCompatActivity() {
             fecha = binding.etFecha.text.toString().trim()
         )
 
+        val id = editandoId
         lifecycleScope.launch {
-            val error = control.registrar(movimiento)      // las reglas viven en el core
+            val error = if (id == null) control.registrar(movimiento)
+            else control.actualizar(movimiento.copy(id = id))
             if (error != null) {
                 Toast.makeText(this@FormularioActivity, error, Toast.LENGTH_SHORT).show()
                 return@launch
             }
-            finish()      // vuelve a la pantalla principal
+            finish()
         }
     }
 }
