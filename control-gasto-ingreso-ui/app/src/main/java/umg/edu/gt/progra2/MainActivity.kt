@@ -181,6 +181,6 @@ class MainActivity : AppCompatActivity() {
             if (limite == null) "Sin límite diario · Poner límite"
             else "Límite diario: ${formatearQuetzales(limite)} · Cambiar"
 
-        binding.tvAviso.text = control.avisoLimite(limite, hoy()) ?: ""
+        binding.tvAviso.text = control.avisoLimiteDiario(limite, hoy()) ?: ""
     }
 }
